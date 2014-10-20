@@ -39,6 +39,7 @@
 		DCB0416D19253FB800D945D2 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCB0416C19253FB800D945D2 /* GLKit.framework */; };
 		DCB69AB5197EE31300AF667A /* SCEditVideoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DCB69AB4197EE31300AF667A /* SCEditVideoViewController.m */; };
 		DCBF83CF19DE1560006547EE /* a_filter.cisf in Resources */ = {isa = PBXBuildFile; fileRef = DCBF83CE19DE1560006547EE /* a_filter.cisf */; };
+		E7A879B819F0A0D50013B24C /* focus_ring.png in Resources */ = {isa = PBXBuildFile; fileRef = E7A879B719F0A0D50013B24C /* focus_ring.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,6 +106,7 @@
 		DCB69AB3197EE31300AF667A /* SCEditVideoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCEditVideoViewController.h; sourceTree = "<group>"; };
 		DCB69AB4197EE31300AF667A /* SCEditVideoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCEditVideoViewController.m; sourceTree = "<group>"; };
 		DCBF83CE19DE1560006547EE /* a_filter.cisf */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = a_filter.cisf; sourceTree = "<group>"; };
+		E7A879B719F0A0D50013B24C /* focus_ring.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = focus_ring.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -194,6 +196,7 @@
 		DC7F371218FC2A0D00D54901 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				E7A879B719F0A0D50013B24C /* focus_ring.png */,
 				DCBF83CE19DE1560006547EE /* a_filter.cisf */,
 				DC1C8E9E18FD24C9005A342D /* Main.storyboard */,
 				DC7F375818FC2B0300D54901 /* capture_flip@2x.png */,
@@ -352,6 +355,7 @@
 				DC7F376A18FC2B0300D54901 /* Pause-Normal-icon.png in Resources */,
 				DCBF83CF19DE1560006547EE /* a_filter.cisf in Resources */,
 				DC7F376618FC2B0300D54901 /* capture_onion@2x.png in Resources */,
+				E7A879B819F0A0D50013B24C /* focus_ring.png in Resources */,
 				DC7F376E18FC2B0300D54901 /* Record-Pressed-icon.png in Resources */,
 				DC7F376518FC2B0300D54901 /* capture_onion_selected@2x.png in Resources */,
 				DC1C8E9F18FD24C9005A342D /* Main.storyboard in Resources */,

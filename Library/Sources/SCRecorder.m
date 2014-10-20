@@ -378,6 +378,7 @@
     }
 }
 
+
 - (void)checkRecordSessionDuration:(SCRecordSession *)recordSession {
     CMTime currentRecordDuration = recordSession.currentRecordDuration;
     CMTime suggestedMaxRecordDuration = recordSession.suggestedMaxRecordDuration;

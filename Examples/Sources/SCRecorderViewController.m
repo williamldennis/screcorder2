@@ -27,9 +27,12 @@
 
 @interface SCRecorderViewController () {
     SCRecorder *_recorder;
-    UIImage *_photo;
     SCRecordSession *_recordSession;
-    UIImageView *_ghostImageView;
+    
+    //TRYING TO MAKE MULTIPLE
+    
+    SCRecorder *_recorder1;
+    SCRecordSession *_recordSession1;
 }
 
 @property (strong, nonatomic) SCRecorderFocusView *focusView;
@@ -55,16 +58,13 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.capturePhotoButton.alpha = 0.0;
     
-    _ghostImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
-    _ghostImageView.contentMode = UIViewContentModeScaleAspectFill;
-    _ghostImageView.alpha = 0.2;
-    _ghostImageView.userInteractionEnabled = NO;
-    _ghostImageView.hidden = YES;
+    if (_recordSession.recordSegments.count == 0) {
     
-    [self.view insertSubview:_ghostImageView aboveSubview:self.previewView];
-
+    //RECORDER 0
+    self.videoPlayback.tapToPauseEnabled = YES;
+    self.videoPlayback.player.loopEnabled = NO;
+    
     _recorder = [SCRecorder recorder];
     _recorder.sessionPreset = AVCaptureSessionPreset1280x720;
     _recorder.audioEnabled = YES;
@@ -74,28 +74,12 @@
     // On iOS 8 and iPhone 5S, enabling this seems to be slow
     _recorder.initializeRecordSessionLazily = NO;
     
-    
-    UIView *previewView = self.previewView;
-    _recorder.previewView = previewView;
-    
-    [self.retakeButton addTarget:self action:@selector(handleRetakeButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [self.stopButton addTarget:self action:@selector(handleStopButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-	[self.reverseCamera addTarget:self action:@selector(handleReverseCameraTapped:) forControlEvents:UIControlEventTouchUpInside];
-    
     [self.recordView addGestureRecognizer:[[SCTouchDetector alloc] initWithTarget:self action:@selector(handleTouchDetected:)]];
-    self.loadingView.hidden = YES;
-    
-    self.focusView = [[SCRecorderFocusView alloc] initWithFrame:previewView.bounds];
-    self.focusView.recorder = _recorder;
-    [previewView addSubview:self.focusView];
-    
-    self.focusView.outsideFocusTargetImage = [UIImage imageNamed:@"capture_flip"];
-    self.focusView.insideFocusTargetImage = [UIImage imageNamed:@"capture_flip"];
     
     [_recorder openSession:^(NSError *sessionError, NSError *audioError, NSError *videoError, NSError *photoError) {
         NSError *error = nil;
         NSLog(@"%@", error);
-
+        
         NSLog(@"==== Opened session ====");
         NSLog(@"Session error: %@", sessionError.description);
         NSLog(@"Audio error : %@", audioError.description);
@@ -104,13 +88,90 @@
         NSLog(@"=======================");
         [self prepareCamera];
     }];
+    
+    UIView *previewView = self.previewView;
+    _recorder.previewView = previewView;
+    
+    self.loadingView.hidden = YES;
+    
+    self.focusView = [[SCRecorderFocusView alloc] initWithFrame:previewView.bounds];
+    self.focusView.recorder = _recorder;
+    [previewView addSubview:self.focusView];
+    
+    self.focusView.outsideFocusTargetImage = [UIImage imageNamed:@"focus_ring"];
+    self.focusView.insideFocusTargetImage = [UIImage imageNamed:@"focus_ring"];
+    }
+    
+    
+    //RECORDER 1
+    else {
+        
+    self.videoPlayback1.tapToPauseEnabled = YES;
+    self.videoPlayback1.player.loopEnabled = NO;
+    
+    _recorder1 = [SCRecorder recorder];
+    _recorder1.sessionPreset = AVCaptureSessionPreset1280x720;
+    _recorder1.audioEnabled = YES;
+    _recorder1.delegate = self;
+    _recorder1.autoSetVideoOrientation = YES;
+    
+    // On iOS 8 and iPhone 5S, enabling this seems to be slow
+    _recorder1.initializeRecordSessionLazily = NO;
+    
+    [self.recordView1 addGestureRecognizer:[[SCTouchDetector alloc] initWithTarget:self action:@selector(handleTouchDetected1:)]];
+        
+    [_recorder1 openSession:^(NSError *sessionError, NSError *audioError, NSError *videoError, NSError *photoError) {
+        NSError *error = nil;
+        NSLog(@"%@", error);
+        
+        NSLog(@"==== Opened session1 ====");
+        NSLog(@"Session error: %@", sessionError.description);
+        NSLog(@"Audio error : %@", audioError.description);
+        NSLog(@"Video error: %@", videoError.description);
+        NSLog(@"Photo error: %@", photoError.description);
+        NSLog(@"=======================");
+        [self prepareCamera1];
+    }];
+    
+    UIView *previewView1 = self.previewView;
+    _recorder1.previewView = previewView1;
+    
+    self.loadingView.hidden = YES;
+//
+//    self.focusView = [[SCRecorderFocusView alloc] initWithFrame:previewView1.bounds];
+//    self.focusView.recorder1 = _recorder1;
+//    [previewView1 addSubview:self.focusView];
+//    
+//    self.focusView.outsideFocusTargetImage = [UIImage imageNamed:@"focus_ring"];
+//    self.focusView.insideFocusTargetImage = [UIImage imageNamed:@"focus_ring"];
+    }
+    
+    
+
+    
+//    [self.retakeButton addTarget:self action:@selector(handleRetakeButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+//    
+//    [self.stopButton addTarget:self action:@selector(handleStopButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+    
+	[self.reverseCamera addTarget:self action:@selector(handleReverseCameraTapped:) forControlEvents:UIControlEventTouchUpInside];
+
+
+    
+
 }
 
 - (void)recorder:(SCRecorder *)recorder didReconfigureAudioInput:(NSError *)audioInputError {
     NSLog(@"Reconfigured audio input: %@", audioInputError);
 }
+- (void)recorder1:(SCRecorder *)recorder1 didReconfigureAudioInput:(NSError *)audioInputError {
+    NSLog(@"Reconfigured audio input: %@", audioInputError);
+}
+
 
 - (void)recorder:(SCRecorder *)recorder didReconfigureVideoInput:(NSError *)videoInputError {
+    NSLog(@"Reconfigured video input: %@", videoInputError);
+}
+- (void)recorder1:(SCRecorder *)recorder1 didReconfigureVideoInput:(NSError *)videoInputError {
     NSLog(@"Reconfigured video input: %@", videoInputError);
 }
 
@@ -118,6 +179,7 @@
     [super viewWillAppear:animated];
     
     [self prepareCamera];
+//    [self prepareCamera1];
     
 	self.navigationController.navigationBarHidden = YES;
     [self updateTimeRecordedLabel];
@@ -127,19 +189,23 @@
     [super viewDidLayoutSubviews];
     
     [_recorder previewViewFrameChanged];
+    [_recorder1 previewViewFrameChanged];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
     [_recorder startRunningSession];
+    [_recorder1 startRunningSession];
     [_recorder focusCenter];
+    [_recorder1 focusCenter];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
 
     [_recorder endRunningSession];
+    [_recorder1 endRunningSession];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -172,25 +238,24 @@
     [self performSegueWithIdentifier:@"Video" sender:self];
 }
 
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if ([segue.destinationViewController isKindOfClass:[SCVideoPlayerViewController class]]) {
-        SCVideoPlayerViewController *videoPlayer = segue.destinationViewController;
-        videoPlayer.recordSession = _recordSession;
-    } else if ([segue.destinationViewController isKindOfClass:[SCImageDisplayerViewController class]]) {
-        SCImageDisplayerViewController *imageDisplayer = segue.destinationViewController;
-        imageDisplayer.photo = _photo;
-        _photo = nil;
-    } else if ([segue.destinationViewController isKindOfClass:[SCSessionListViewController class]]) {
-        SCSessionListViewController *sessionListVC = segue.destinationViewController;
-        
-        sessionListVC.recorder = _recorder;
-    }
+- (void)showVideo1 {
+    [self performSegueWithIdentifier:@"Video" sender:self];
 }
 
-- (void)showPhoto:(UIImage *)photo {
-    _photo = photo;
-    [self performSegueWithIdentifier:@"Photo" sender:self];
-}
+//- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+//    if ([segue.destinationViewController isKindOfClass:[SCVideoPlayerViewController class]]) {
+//        SCVideoPlayerViewController *videoPlayer = segue.destinationViewController;
+//        videoPlayer.recordSession = _recordSession;
+//    } else if ([segue.destinationViewController isKindOfClass:[SCImageDisplayerViewController class]]) {
+//        SCImageDisplayerViewController *imageDisplayer = segue.destinationViewController;
+//
+//    } else if ([segue.destinationViewController isKindOfClass:[SCSessionListViewController class]]) {
+//        SCSessionListViewController *sessionListVC = segue.destinationViewController;
+//        
+//        sessionListVC.recorder = _recorder;
+//    }
+//}
+
 
 - (void) handleReverseCameraTapped:(id)sender {
 	[_recorder switchCaptureDevices];
@@ -202,63 +267,66 @@
     if (recordSession != nil) {
         [self finishSession:recordSession];
     }
+
+}
+
+- (void) handleStopButtonTapped1:(id)sender {
+    NSLog(@"handleStopButtonTapped1 being called");
+
+    SCRecordSession *recordSession1 = _recorder1.recordSession;
+    
+    if (recordSession1 != nil) {
+        [self finishSession1:recordSession1];
+    }
 }
 
 - (void)finishSession:(SCRecordSession *)recordSession {
+    
+    NSLog(@"finishSession being called");
+
     [recordSession endRecordSegment:^(NSInteger segmentIndex, NSError *error) {
         [[SCRecordSessionManager sharedInstance] saveRecordSession:recordSession];
         
         _recordSession = recordSession;
-        [self showVideo];
-        [self prepareCamera];
+        [self showVideo:0];
+        
+//        [self prepareCamera1];
+
     }];
 }
 
-- (void) handleRetakeButtonTapped:(id)sender {
-    SCRecordSession *recordSession = _recorder.recordSession;
-    
-    if (recordSession != nil) {
-        _recorder.recordSession = nil;
-        
-        // If the recordSession was saved, we don't want to completely destroy it
-        if ([[SCRecordSessionManager sharedInstance] isSaved:recordSession]) {
-            [recordSession endRecordSegment:nil];
-        } else {
-            [recordSession cancelSession:nil];
-        }
-    }
-    
-	[self prepareCamera];
-    [self updateTimeRecordedLabel];
-}
+- (void)finishSession1:(SCRecordSession *)recordSession1 {
+    NSLog(@"finishSession1 being called");
 
-- (IBAction)switchCameraMode:(id)sender {
-    if ([_recorder.sessionPreset isEqualToString:AVCaptureSessionPresetPhoto]) {
-        [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-            self.capturePhotoButton.alpha = 0.0;
-            self.recordView.alpha = 1.0;
-            self.retakeButton.alpha = 1.0;
-            self.stopButton.alpha = 1.0;
-        } completion:^(BOOL finished) {
-			_recorder.sessionPreset = kVideoPreset;
-            [self.switchCameraModeButton setTitle:@"Switch Photo" forState:UIControlStateNormal];
-            [self.flashModeButton setTitle:@"Flash : Off" forState:UIControlStateNormal];
-            _recorder.flashMode = SCFlashModeOff;
-        }];
-    } else {
-        [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-            self.recordView.alpha = 0.0;
-            self.retakeButton.alpha = 0.0;
-            self.stopButton.alpha = 0.0;
-            self.capturePhotoButton.alpha = 1.0;
-        } completion:^(BOOL finished) {
-			_recorder.sessionPreset = AVCaptureSessionPresetPhoto;
-            [self.switchCameraModeButton setTitle:@"Switch Video" forState:UIControlStateNormal];
-            [self.flashModeButton setTitle:@"Flash : Auto" forState:UIControlStateNormal];
-            _recorder.flashMode = SCFlashModeAuto;
-        }];
-    }
+    [recordSession1 endRecordSegment:^(NSInteger segmentIndex, NSError *error) {
+        [[SCRecordSessionManager sharedInstance] saveRecordSession:recordSession1];
+        
+        _recordSession1 = recordSession1;
+        [self showVideo1:0];
+        
+//        [self prepareCamera2];
+        
+    }];
 }
+//
+//- (void) handleRetakeButtonTapped:(id)sender {
+//    SCRecordSession *recordSession = _recorder.recordSession;
+//    
+//    if (recordSession != nil) {
+//        _recorder.recordSession = nil;
+//        
+//        // If the recordSession was saved, we don't want to completely destroy it
+//        if ([[SCRecordSessionManager sharedInstance] isSaved:recordSession]) {
+//            [recordSession endRecordSegment:nil];
+//        } else {
+//            [recordSession cancelSession:nil];
+//        }
+//    }
+//    
+//	[self prepareCamera];
+//    [self updateTimeRecordedLabel];
+//}
+
 
 - (IBAction)switchFlash:(id)sender {
     NSString *flashModeString = nil;
@@ -302,42 +370,90 @@
 }
 
 - (void) prepareCamera {
+    NSLog(@"prepareCamera being called");
     if (_recorder.recordSession == nil) {
         
         SCRecordSession *session = [SCRecordSession recordSession];
-        session.suggestedMaxRecordDuration = CMTimeMakeWithSeconds(5, 10000);
+        session.suggestedMaxRecordDuration = CMTimeMakeWithSeconds(40, 10000);
         
         _recorder.recordSession = session;
+        _recorder.recordSession.videoSizeAsSquare = YES;
+
+    }
+}
+
+- (void) prepareCamera1 {
+    NSLog(@"prepareCamera1 being called");
+
+    if (_recorder1.recordSession == nil) {
+        
+        SCRecordSession *session1 = [SCRecordSession recordSession];
+        session1.suggestedMaxRecordDuration = CMTimeMakeWithSeconds(40, 10000);
+        
+        _recorder1.recordSession = session1;
+        _recorder1.recordSession.videoSizeAsSquare = YES;
+        
     }
 }
 
 - (void)recorder:(SCRecorder *)recorder didCompleteRecordSession:(SCRecordSession *)recordSession {
+    NSLog(@"didCompleteRecordSession");
     [self finishSession:recordSession];
 }
 
-- (void)recorder:(SCRecorder *)recorder didInitializeAudioInRecordSession:(SCRecordSession *)recordSession error:(NSError *)error {
-    if (error == nil) {
-        NSLog(@"Initialized audio in record session");
-    } else {
-        NSLog(@"Failed to initialize audio in record session: %@", error.localizedDescription);
-    }
+- (void)recorder1:(SCRecorder *)recorder1 didCompleteRecordSession:(SCRecordSession *)recordSession1 {
+        NSLog(@"didCompleteRecordSession1");
+    [self finishSession1:recordSession1];
 }
+
 
 - (void)recorder:(SCRecorder *)recorder didInitializeVideoInRecordSession:(SCRecordSession *)recordSession error:(NSError *)error {
     if (error == nil) {
-        NSLog(@"Initialized video in record session");
+        NSLog(@"Initialized video in recorder session");
+    } else {
+        NSLog(@"Failed to initialize video in record session: %@", error.localizedDescription);
+    }
+}
+
+- (void)recorder1:(SCRecorder *)recorder1 didInitializeVideoInRecordSession:(SCRecordSession *)recordSession1 error:(NSError *)error {
+    if (error == nil) {
+        NSLog(@"Initialized video in recorder1 session");
     } else {
         NSLog(@"Failed to initialize video in record session: %@", error.localizedDescription);
     }
 }
 
 - (void)recorder:(SCRecorder *)recorder didBeginRecordSegment:(SCRecordSession *)recordSession error:(NSError *)error {
-    NSLog(@"Began record segment: %@", error);
+    
+    if (recorder == _recorder) {
+    
+    NSLog(@"Began _recorder segment: %@", error);
+    }
+    
+    else if (recorder == _recorder1) {
+    NSLog(@"Began _recorder1 segment: %@", error);
+
+    }
 }
 
+
 - (void)recorder:(SCRecorder *)recorder didEndRecordSegment:(SCRecordSession *)recordSession segmentIndex:(NSInteger)segmentIndex error:(NSError *)error {
-    NSLog(@"End record segment %d at %@: %@", (int)segmentIndex, segmentIndex >= 0 ? [recordSession.recordSegments objectAtIndex:segmentIndex] : nil, error);
+    
+    if (recorder == _recorder) {
+    
+    NSLog(@"End _recorder segment %d at %@: %@", (int)segmentIndex, segmentIndex >= 0 ? [recordSession.recordSegments objectAtIndex:segmentIndex] : nil, error);
+        
+    [self handleStopButtonTapped:self];
+    }
+    
+    else if (recorder == _recorder1) {
+        
+    NSLog(@"End _recorder1 segment %d at %@: %@", (int)segmentIndex, segmentIndex >= 0 ? [recordSession.recordSegments objectAtIndex:segmentIndex] : nil, error);
+    
+    [self handleStopButtonTapped1:self];
+    }
 }
+
 
 - (void)updateTimeRecordedLabel {
     CMTime currentTime = kCMTimeZero;
@@ -349,39 +465,90 @@
     self.timeRecordedLabel.text = [NSString stringWithFormat:@"Recorded - %.2f sec", CMTimeGetSeconds(currentTime)];
 }
 
+- (void)updateTimeRecordedLabel1 {
+    CMTime currentTime = kCMTimeZero;
+    
+    if (_recorder1.recordSession != nil) {
+        currentTime = _recorder1.recordSession.currentRecordDuration;
+    }
+    
+    self.timeRecordedLabel.text = [NSString stringWithFormat:@"Recorded - %.2f sec", CMTimeGetSeconds(currentTime)];
+}
+
 - (void)recorder:(SCRecorder *)recorder didAppendVideoSampleBuffer:(SCRecordSession *)recordSession {
     [self updateTimeRecordedLabel];
     
 }
 
+- (void)recorder1:(SCRecorder *)recorder1 didAppendVideoSampleBuffer:(SCRecordSession *)recordSession1 {
+    [self updateTimeRecordedLabel];
+    
+}
+
 - (void)handleTouchDetected:(SCTouchDetector*)touchDetector {
-    if (touchDetector.state == UIGestureRecognizerStateBegan) {
-        _ghostImageView.hidden = YES;
-        [_recorder record];
-    } else if (touchDetector.state == UIGestureRecognizerStateEnded) {
-        [_recorder pause];
-        [self updateGhostImage];
+    NSLog(@"handleTouchDetected");
+    if (_recordSession.recordSegments.count == 0) {
+    
+        if (touchDetector.state == UIGestureRecognizerStateBegan) {
+            [_recorder record];
+        } else if (touchDetector.state == UIGestureRecognizerStateEnded) {
+            [_recorder pause];
+        }}
+    else {
+            [_recorder pause];
     }
 }
 
-- (IBAction)capturePhoto:(id)sender {
-    [_recorder capturePhoto:^(NSError *error, UIImage *image) {
-        if (image != nil) {
-            [self showPhoto:image];
-        } else {
-            [self showAlertViewWithTitle:@"Failed to capture photo" message:error.localizedDescription];
-        }
-    }];
+- (void)handleTouchDetected1:(SCTouchDetector*)touchDetector1 {
+    NSLog(@"handleTouchDetected1");
+    if (_recordSession1.recordSegments.count == 0) {
+        if (touchDetector1.state == UIGestureRecognizerStateBegan) {
+            NSLog(@"_recorder1 record");
+            [_recorder1 record];
+        } else if (touchDetector1.state == UIGestureRecognizerStateEnded) {
+            [_recorder1 pause];
+        }}
+    else {
+        [_recorder1 pause];
+    }
 }
 
-- (void)updateGhostImage {
-    _ghostImageView.image = [_recorder snapshotOfLastAppendedVideoBuffer];
-    _ghostImageView.hidden = !_ghostModeButton.selected;
+- (void)showVideo:(NSInteger)idx {
+    NSLog(@"showVideo");
+
+    if (idx < 0) {
+        idx = 0;
+    }
+    
+    if (idx < _recordSession.recordSegments.count) {
+        NSLog(@"recorder has segments");
+        NSURL *url = [_recordSession.recordSegments objectAtIndex:idx];
+        [self.videoPlayback.player setItemByUrl:url];
+        [self.videoPlayback.player play];
+        [self viewDidLoad];
+
+    }
+    
 }
 
-- (IBAction)switchGhostMode:(id)sender {
-    _ghostModeButton.selected = !_ghostModeButton.selected;
-    _ghostImageView.hidden = !_ghostModeButton.selected;
+- (void)showVideo1:(NSInteger)idx1 {
+    NSLog(@"showVideo1");
+
+    if (idx1 < 0) {
+        idx1 = 0;
+    }
+    
+    if (idx1 < _recordSession1.recordSegments.count) {
+        NSLog(@"recorder1 has segments");
+
+        NSURL *url1 = [_recordSession1.recordSegments objectAtIndex:idx1];
+        [self.videoPlayback1.player setItemByUrl:url1];
+        [self.videoPlayback1.player play];
+    }
+    
 }
+
+
+
 
 @end
